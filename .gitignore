@@ -1,1 +1,1 @@
-ignore _mysql_password.py
+ignore passwords.py
