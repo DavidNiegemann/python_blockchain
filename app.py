@@ -3,6 +3,7 @@ from passlib.hash import sha256_crypt
 from flask_mysqldb import MySQL
 
 from passwords import _mysql_password
+from sqlhelpers import *
 
 app = Flask(__name__)
 
@@ -14,12 +15,15 @@ app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 
 mysql = MySQL(app)
 
-
 @app.route("/")
 def index():
+    users = Table("users","name","email","username","password")
     return render_template('index.html')
 
 
 if __name__ == '__main__':
     app.secret_key = 'secret123'
     app.run(debug=True)
+
+
+    

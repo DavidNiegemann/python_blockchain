@@ -5,14 +5,21 @@ class Table():
     def __init__(self, table_name, *args):
         self.table = table_name
         self.columns = "(%s)" % ",".join(args)
+        self.columnsList = args
+        
         if isnewtable(table_name):
+            create_data = ""
+            for column in self.columnsList:
+                create_data += "%s varchar(100)," %column
+                
             cur = mysql.connection.cursor()
-            cur.execute("CREATE TABLE %s%s" % (self.table, self.columns))
+            print("CREATE TABLE %s(%s)" %(self.table, create_data[:len(create_data)-1]))
+            cur.execute("CREATE TABLE %s%s" %(self.table, create_data[:len(create_data)-1]))
             cur.close()
 
     def getall(self):
         cur = mysql.connection.cursor()
-        result = cur.execute("SELECT * FROM %s" % self.table)
+        result = cur.execute("SELECT * FROM %s" %self.table)
         data = cur.fetchall()
         return data
 
@@ -33,9 +40,13 @@ class Table():
         mysql.connection.commit()
         cur.close()
 
+    def deleteall(self):
+        self.drop()
+        self.__init__(self.table, *self.columnsList)
+
     def drop(self):
         cur = mysql.connection.cursor()
-        cur.execute("DROP TABLE %s" % self.table)
+        cur.execute("DROP TABLE %s" %self.table)
         cur.close()
 
     def insert(self, *args):
@@ -59,7 +70,7 @@ def sql_raw(execution):
 def isnewtable(tableName):
     cur = mysql.connection.cursor()
     try:
-        result = cur.execute("SELECT * from %s" % stableName)
+        result = cur.execute("SELECT * from %s" % tableName)
         cur.close()
     except:
         return True
@@ -68,7 +79,7 @@ def isnewtable(tableName):
 
 
 def isnewuser(username):
-    users = Table("users", "name", "username", "email", "password")
+    users = Table("users", "name", "email","username", "password")
     data = users.getall()
     usernames = [user.get('username') for user in data]
     return False if username in usernames else True
